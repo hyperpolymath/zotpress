@@ -1,0 +1,107 @@
+Palimpsest License v0.8
+=======================
+
+Copyright (c) 2024 Joshua & Jonathan Jewell
+
+This software is licensed under the Palimpsest License v0.8, an audit-grade,
+consent-aware, provenance-rich license designed for responsible software
+development and distribution.
+
+GRANT OF RIGHTS
+---------------
+
+Permission is hereby granted to any person obtaining a copy of this software
+and associated documentation (the "Software"), to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of the Software, subject
+to the following conditions:
+
+MANDATORY REQUIREMENTS
+----------------------
+
+1. ATTRIBUTION & PROVENANCE
+   All copies or substantial portions of the Software must retain:
+   - This license text in full
+   - Original copyright notices
+   - Attribution to original authors
+   - Provenance chain documenting modifications
+
+2. AUDIT TRAIL
+   Any modifications must be documented with:
+   - Description of changes made
+   - Date and author of modifications
+   - Rationale for changes (where applicable)
+   - Version identification
+
+3. CONSENT & ETHICS
+   Use of this Software must:
+   - Respect user autonomy and consent
+   - Not be used for surveillance without informed consent
+   - Not be used to cause demonstrable harm
+   - Comply with applicable data protection regulations
+
+4. TRANSPARENCY
+   Derivative works must:
+   - Maintain visibility of the provenance chain
+   - Provide clear attribution to all contributors
+   - Document any changes to functionality or behavior
+
+OPTIONAL BUT ENCOURAGED
+-----------------------
+
+- Contribution of improvements back to the community
+- Documentation of lessons learned
+- Sharing of anonymized use cases
+- Participation in the Palimpsest ecosystem
+
+LIMITATIONS
+-----------
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.
+
+INTERPRETATION
+--------------
+
+In case of conflict between the requirements of this license, the following
+priority applies:
+1. User consent and ethical use
+2. Provenance and attribution
+3. Audit trail and transparency
+
+COMPATIBILITY
+-------------
+
+This license is compatible with and can be combined with:
+- MIT License
+- Apache License 2.0
+- BSD 3-Clause License
+- Other permissive open source licenses
+
+When combined with other licenses, users may choose to comply with either
+this license OR the companion license, at their option.
+
+TERMINATION
+-----------
+
+Failure to comply with the terms of this license automatically terminates
+your rights under it. However, if you cure the violation within 30 days of
+discovering it, your rights are automatically reinstated.
+
+FUTURE VERSIONS
+---------------
+
+The Palimpsest License may be revised. You may choose to use the terms of
+this version or any later published version.
+
+---
+
+For more information about the Palimpsest License and the principles behind
+it, visit: [Palimpsest License Project]
+
+End of License
