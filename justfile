@@ -1,5 +1,5 @@
 # zotpress - Development Tasks
-# Modern WordPress plugin development with Deno + PHP tooling
+# Modern WordPress plugin development with Deno + ReScript + PHP tooling
 
 set shell := ["bash", "-uc"]
 set dotenv-load := true
@@ -15,11 +15,15 @@ default:
 # Build & Development
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Build all assets (CSS + JS)
-build: build-css build-js
+# Build all assets (ReScript + CSS + JS)
+build: build-rescript build-css build-js
     @echo "✓ Build complete"
 
-# Build CSS with PostCSS/LightningCSS via Deno
+# Build ReScript sources
+build-rescript:
+    npx rescript build
+
+# Build CSS with LightningCSS via Deno
 build-css:
     deno task build:css
 
@@ -31,10 +35,14 @@ build-js:
 dev:
     deno task dev
 
+# Watch ReScript files
+dev-rescript:
+    npx rescript build -w
+
 # Clean build artifacts
 clean:
     rm -rf dist/ .cache/ coverage/ .phpunit.cache/
-    rm -rf vendor/ node_modules/ .deno/
+    rm -rf vendor/ node_modules/ .deno/ lib/es6/
     @echo "✓ Cleaned build artifacts"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -53,7 +61,7 @@ test-php:
 test-php-coverage:
     XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html coverage/
 
-# Run JavaScript/TypeScript tests via Deno
+# Run JavaScript tests via Deno
 test-js:
     deno test --allow-read --allow-write
 
@@ -62,16 +70,16 @@ test-js:
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Run all linters
-lint: lint-php lint-js
+lint: lint-php lint-rescript lint-js
     @echo "✓ All lints passed"
 
 # Lint PHP with PHPCS
 lint-php:
-    vendor/bin/phpcs --standard=WordPress lib/ src/ || true
+    vendor/bin/phpcs --standard=WordPress lib/ || true
 
 # Lint PHP syntax
 lint-php-syntax:
-    vendor/bin/parallel-lint lib/ src/
+    vendor/bin/parallel-lint lib/
 
 # Static analysis with PHPStan
 phpstan:
@@ -81,41 +89,53 @@ phpstan:
 psalm:
     vendor/bin/psalm --no-cache
 
-# Lint JavaScript/TypeScript via Deno
+# Lint ReScript
+lint-rescript:
+    npx rescript format -check src/rescript/ || true
+
+# Lint JavaScript (build scripts) via Deno
 lint-js:
-    deno lint
+    deno lint scripts/
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Formatting
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Format all code
-fmt: fmt-php fmt-js
+fmt: fmt-php fmt-rescript fmt-js
     @echo "✓ Formatting complete"
 
 # Format PHP with PHPCBF
 fmt-php:
-    vendor/bin/phpcbf --standard=WordPress lib/ src/ || true
+    vendor/bin/phpcbf --standard=WordPress lib/ || true
 
-# Format JavaScript/TypeScript via Deno
+# Format ReScript
+fmt-rescript:
+    npx rescript format src/rescript/
+
+# Format JavaScript (build scripts) via Deno
 fmt-js:
-    deno fmt
+    deno fmt scripts/
 
 # Check formatting (CI)
 fmt-check:
-    deno fmt --check
+    deno fmt --check scripts/
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Dependency Management
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Install all dependencies
-install: install-php install-js
+install: install-php install-rescript install-js
     @echo "✓ Dependencies installed"
 
 # Install PHP dependencies
 install-php:
     composer install --prefer-dist
+
+# Install ReScript (requires node/npm for rescript compiler)
+install-rescript:
+    npm install rescript --save-dev
 
 # Install JavaScript dependencies (Deno caches automatically)
 install-js:
@@ -146,7 +166,7 @@ ci: lint phpstan test fmt-check
     @echo "✓ CI checks passed"
 
 # Fix all auto-fixable issues
-fix: fmt-php rector-fix
+fix: fmt-php fmt-rescript rector-fix
     @echo "✓ Auto-fixes applied"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -202,6 +222,7 @@ info:
     @echo "PHP: $(php --version | head -n1)"
     @echo "Deno: $(deno --version | head -n1)"
     @echo "Composer: $(composer --version)"
+    @echo "ReScript: $(npx rescript -version 2>/dev/null || echo 'not installed')"
     @echo ""
     @echo "Run 'just --list' for available commands"
 
@@ -211,4 +232,5 @@ check-tools:
     @which deno || echo "❌ Deno not found"
     @which composer || echo "❌ Composer not found"
     @which just || echo "❌ Just not found"
+    @which npx || echo "❌ npx not found (needed for ReScript)"
     @echo "✓ Tool check complete"

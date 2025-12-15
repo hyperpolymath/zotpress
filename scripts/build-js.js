@@ -1,7 +1,7 @@
 /**
  * JavaScript Build Script
  *
- * Modern JavaScript bundling with esbuild via Deno.
+ * Bundles ReScript-compiled JS and legacy JavaScript with esbuild.
  * Produces optimized bundles for WordPress plugin.
  *
  * @module
@@ -9,32 +9,25 @@
 
 import { ensureDir } from '@std/fs';
 import { join, basename } from '@std/path';
-// @ts-ignore: esbuild types
 import * as esbuild from 'esbuild';
 
-const SRC_DIR = './src/js';
-const DIST_DIR = './dist/js';
+const RESCRIPT_OUT_DIR = './lib/es6';
 const LEGACY_JS_DIR = './js';
+const DIST_DIR = './dist/js';
 
 /**
  * JS build configuration
  */
-interface JSConfig {
-  readonly minify: boolean;
-  readonly sourceMaps: boolean;
-  readonly target: string[];
-}
-
-const config: JSConfig = {
+const config = {
   minify: Deno.env.get('NODE_ENV') === 'production',
   sourceMaps: Deno.env.get('NODE_ENV') !== 'production',
   target: ['es2020', 'chrome90', 'firefox90', 'safari14'],
 };
 
 /**
- * Build a single JavaScript/TypeScript file with esbuild
+ * Bundle ReScript-compiled JavaScript with esbuild
  */
-async function buildFile(inputPath: string, outputPath: string): Promise<void> {
+async function bundleReScript(inputPath, outputPath) {
   const filename = basename(inputPath);
   console.log(`  Bundling: ${filename}`);
 
@@ -50,9 +43,7 @@ async function buildFile(inputPath: string, outputPath: string): Promise<void> {
     platform: 'browser',
     external: ['jquery', 'wp'],
     define: {
-      'process.env.NODE_ENV': JSON.stringify(
-        Deno.env.get('NODE_ENV') || 'development'
-      ),
+      'process.env.NODE_ENV': JSON.stringify(Deno.env.get('NODE_ENV') || 'development'),
     },
     metafile: true,
   });
@@ -68,7 +59,7 @@ async function buildFile(inputPath: string, outputPath: string): Promise<void> {
 /**
  * Minify a legacy JavaScript file
  */
-async function minifyFile(inputPath: string, outputPath: string): Promise<void> {
+async function minifyFile(inputPath, outputPath) {
   const filename = basename(inputPath);
   console.log(`  Minifying: ${filename}`);
 
@@ -78,7 +69,6 @@ async function minifyFile(inputPath: string, outputPath: string): Promise<void> 
     minify: true,
     sourcemap: config.sourceMaps,
     target: config.target,
-    format: 'iife',
   });
 
   await Deno.writeTextFile(outputPath, result.code);
@@ -95,10 +85,10 @@ async function minifyFile(inputPath: string, outputPath: string): Promise<void> 
 }
 
 /**
- * Find all JS/TS files in a directory
+ * Find all JS files in a directory
  */
-async function findJSFiles(dir: string, extensions = ['.ts', '.js']): Promise<string[]> {
-  const files: string[] = [];
+async function findJSFiles(dir, extensions = ['.js', '.res.js']) {
+  const files = [];
 
   try {
     for await (const entry of Deno.readDir(dir)) {
@@ -121,22 +111,21 @@ async function findJSFiles(dir: string, extensions = ['.ts', '.js']): Promise<st
 /**
  * Main JS build function
  */
-async function main(): Promise<void> {
+async function main() {
   console.log('⚡ Building JavaScript assets...\n');
 
   await ensureDir(DIST_DIR);
 
-  // Build modern TypeScript from src/js
-  const srcFiles = await findJSFiles(SRC_DIR, ['.ts', '.tsx']);
-  if (srcFiles.length > 0) {
-    console.log(`Found ${srcFiles.length} files in ${SRC_DIR}:`);
-    for (const file of srcFiles) {
-      const outputFile = join(
-        DIST_DIR,
-        basename(file).replace(/\.(ts|tsx)$/, '.min.js')
-      );
-      await buildFile(file, outputFile);
+  // Build ReScript-compiled JS
+  const resFiles = await findJSFiles(RESCRIPT_OUT_DIR, ['.res.js']);
+  if (resFiles.length > 0) {
+    console.log(`Found ${resFiles.length} ReScript files in ${RESCRIPT_OUT_DIR}:`);
+    for (const file of resFiles) {
+      const outputFile = join(DIST_DIR, basename(file).replace('.res.js', '.min.js'));
+      await bundleReScript(file, outputFile);
     }
+  } else {
+    console.log('No ReScript output found (run `deno task build:rescript` first)');
   }
 
   // Minify legacy JavaScript files
@@ -164,4 +153,4 @@ if (import.meta.main) {
   main();
 }
 
-export { main, buildFile, minifyFile, findJSFiles };
+export { bundleReScript, findJSFiles, main, minifyFile };

@@ -2,14 +2,13 @@
  * CSS Build Script
  *
  * Modern CSS processing with LightningCSS via Deno.
- * Replaces PostCSS/Autoprefixer with faster native tooling.
+ * Faster native tooling for CSS minification and transforms.
  *
  * @module
  */
 
 import { ensureDir } from '@std/fs';
 import { join, basename } from '@std/path';
-// @ts-ignore: lightningcss types
 import { transform, browserslistToTargets } from 'lightningcss';
 
 const SRC_DIR = './src/css';
@@ -19,27 +18,16 @@ const LEGACY_CSS_DIR = './css';
 /**
  * CSS build configuration
  */
-interface CSSConfig {
-  readonly minify: boolean;
-  readonly sourceMaps: boolean;
-  readonly targets: ReturnType<typeof browserslistToTargets>;
-}
-
-const config: CSSConfig = {
+const config = {
   minify: Deno.env.get('NODE_ENV') === 'production',
   sourceMaps: Deno.env.get('NODE_ENV') !== 'production',
-  targets: browserslistToTargets([
-    '>= 0.5%',
-    'last 2 versions',
-    'Firefox ESR',
-    'not dead',
-  ]),
+  targets: browserslistToTargets(['>= 0.5%', 'last 2 versions', 'Firefox ESR', 'not dead']),
 };
 
 /**
  * Process a single CSS file with LightningCSS
  */
-async function processCSS(inputPath: string, outputPath: string): Promise<void> {
+async function processCSS(inputPath, outputPath) {
   const filename = basename(inputPath);
   console.log(`  Processing: ${filename}`);
 
@@ -54,19 +42,13 @@ async function processCSS(inputPath: string, outputPath: string): Promise<void> 
     drafts: {
       customMedia: true,
     },
-    nonStandard: {
-      deepSelectorCombinator: true,
-    },
     errorRecovery: true,
   });
 
   await Deno.writeFile(outputPath, result.code);
 
   if (result.map && config.sourceMaps) {
-    await Deno.writeFile(
-      `${outputPath}.map`,
-      new TextEncoder().encode(JSON.stringify(result.map))
-    );
+    await Deno.writeFile(`${outputPath}.map`, new TextEncoder().encode(JSON.stringify(result.map)));
   }
 
   const inputSize = code.length;
@@ -79,8 +61,8 @@ async function processCSS(inputPath: string, outputPath: string): Promise<void> 
 /**
  * Find all CSS files in a directory
  */
-async function findCSSFiles(dir: string): Promise<string[]> {
-  const files: string[] = [];
+async function findCSSFiles(dir) {
+  const files = [];
 
   try {
     for await (const entry of Deno.readDir(dir)) {
@@ -98,7 +80,7 @@ async function findCSSFiles(dir: string): Promise<string[]> {
 /**
  * Main CSS build function
  */
-async function main(): Promise<void> {
+async function main() {
   console.log('🎨 Building CSS assets...\n');
 
   await ensureDir(DIST_DIR);
@@ -135,4 +117,4 @@ if (import.meta.main) {
   main();
 }
 
-export { main, processCSS, findCSSFiles };
+export { findCSSFiles, main, processCSS };

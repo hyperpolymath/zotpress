@@ -20,9 +20,15 @@
     },
     {
       "@type": "ComputerLanguage",
-      "name": "TypeScript",
-      "version": ">=5.0",
-      "url": "https://typescriptlang.org"
+      "name": "ReScript",
+      "version": ">=11.0",
+      "url": "https://rescript-lang.org"
+    },
+    {
+      "@type": "ComputerLanguage",
+      "name": "JavaScript",
+      "version": "ES2020",
+      "url": "https://ecma-international.org/publications-and-standards/standards/ecma-262/"
     },
     {
       "@type": "ComputerLanguage",
@@ -51,7 +57,8 @@
     "bibliography",
     "citations",
     "academic",
-    "research"
+    "research",
+    "rescript"
   ],
   "applicationCategory": "WordPress Plugin",
   "softwareRequirements": [

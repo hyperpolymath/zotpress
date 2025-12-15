@@ -40,15 +40,23 @@ target/
 *.map
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Deno / Node (Deno REQUIRED per RSR, Node FORBIDDEN)
+# ReScript
+# ─────────────────────────────────────────────────────────────────────────────
+lib/bs/
+lib/es6/
+lib/js/
+.bsb.lock
+.merlin
+*.res.js
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Deno / Node (Deno REQUIRED per RSR for build scripts)
+# Note: Node/npm only for ReScript compiler (unavoidable dependency)
 # ─────────────────────────────────────────────────────────────────────────────
 .deno/
 deno.lock
-# FORBIDDEN: node_modules/ - RSR policy
 node_modules/
-# FORBIDDEN: package-lock.json - RSR policy
 package-lock.json
-# FORBIDDEN: npm files - RSR policy
 npm-debug.log*
 # FORBIDDEN: bun files - RSR policy
 bun.lockb

@@ -2,18 +2,9 @@
   "$schema": "https://deno.land/x/deno/cli/schemas/config-file.v1.json",
   "name": "@zotpress/build",
   "version": "0.1.0",
-  "exports": "./mod.ts",
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "lib": ["ES2023", "DOM", "DOM.Iterable"]
-  },
   "lint": {
-    "include": ["src/", "scripts/"],
+    "include": ["scripts/"],
+    "exclude": ["lib/", "src/rescript/"],
     "rules": {
       "tags": ["recommended"],
       "include": [
@@ -21,25 +12,14 @@
         "camelcase",
         "default-param-last",
         "eqeqeq",
-        "explicit-function-return-type",
         "no-await-in-loop",
-        "no-console",
         "no-const-assign",
         "no-eval",
-        "no-external-import",
-        "no-implicit-declare-namespace-export",
-        "no-non-null-asserted-optional-chain",
         "no-self-compare",
         "no-sparse-arrays",
-        "no-sync-fn-in-async-fn",
-        "no-throw-literal",
-        "no-undef",
-        "prefer-ascii",
-        "prefer-primordials",
-        "single-var-declarator",
-        "verbatim-module-syntax"
+        "no-throw-literal"
       ],
-      "exclude": ["no-unused-vars"]
+      "exclude": ["no-unused-vars", "no-console", "explicit-function-return-type"]
     }
   },
   "fmt": {
@@ -48,47 +28,45 @@
     "indentWidth": 2,
     "semiColons": true,
     "singleQuote": true,
-    "proseWrap": "preserve"
+    "proseWrap": "preserve",
+    "include": ["scripts/"],
+    "exclude": ["lib/", "src/rescript/", "vendor/", "node_modules/"]
   },
   "test": {
-    "include": ["src/**/*_test.ts", "tests/"]
+    "include": ["scripts/**/*_test.js", "tests/js/"]
   },
   "tasks": {
-    "build": "deno run --allow-read --allow-write scripts/build.ts",
-    "build:css": "deno run --allow-read --allow-write scripts/build-css.ts",
-    "build:js": "deno run --allow-read --allow-write --allow-net scripts/build-js.ts",
-    "lint": "deno lint",
+    "build": "deno run --allow-read --allow-write --allow-run scripts/build.js",
+    "build:css": "deno run --allow-read --allow-write scripts/build-css.js",
+    "build:js": "deno run --allow-read --allow-write --allow-run scripts/build-js.js",
+    "build:rescript": "npx rescript build",
+    "lint": "deno lint scripts/",
     "lint:php": "vendor/bin/phpcs --standard=WordPress lib/",
-    "fmt": "deno fmt",
-    "fmt:check": "deno fmt --check",
+    "lint:rescript": "npx rescript format -check src/rescript/",
+    "fmt": "deno fmt scripts/",
+    "fmt:check": "deno fmt --check scripts/",
+    "fmt:rescript": "npx rescript format src/rescript/",
     "test": "deno test --allow-read --allow-write",
     "test:php": "vendor/bin/phpunit",
-    "check": "deno check src/**/*.ts",
-    "clean": "rm -rf dist/ .cache/",
-    "dev": "deno run --watch --allow-read --allow-write scripts/build.ts",
-    "bundle": "deno bundle src/mod.ts dist/zotpress.bundle.js",
+    "clean": "rm -rf dist/ .cache/ lib/es6/",
+    "dev": "deno run --watch --allow-read --allow-write --allow-run scripts/build.js",
     "ci": "deno task lint && deno task fmt:check && deno task test"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@^1.0.0",
     "@std/fs": "jsr:@std/fs@^1.0.0",
     "@std/path": "jsr:@std/path@^1.0.0",
-    "@std/testing": "jsr:@std/testing@^1.0.0",
-    "@std/encoding": "jsr:@std/encoding@^1.0.0",
-    "postcss": "npm:postcss@^8.4.0",
-    "autoprefixer": "npm:autoprefixer@^10.4.0",
-    "cssnano": "npm:cssnano@^7.0.0",
-    "esbuild": "npm:esbuild@^0.24.0",
-    "lightningcss": "npm:lightningcss@^1.28.0"
+    "lightningcss": "npm:lightningcss@^1.28.0",
+    "esbuild": "npm:esbuild@^0.24.0"
   },
   "exclude": [
     "node_modules/",
     "vendor/",
     "dist/",
     ".cache/",
+    "lib/es6/",
     "*.min.js",
-    "*.min.css"
+    "*.min.css",
+    "*.res.js"
   ],
-  "nodeModulesDir": "auto",
-  "unstable": ["kv", "cron"]
+  "nodeModulesDir": "auto"
 }
