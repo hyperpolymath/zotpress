@@ -11,7 +11,7 @@ jobs:
   dependability:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check test coverage
         run: |
           echo "Checking for test files..."
@@ -30,7 +30,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Secret scanning
         uses: trufflesecurity/trufflehog@05cccb53bc9e13bc6d17997db5a6bcc3df44bf2f # v3.92.3
         continue-on-error: true
@@ -52,7 +52,7 @@ jobs:
   interoperability:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check API specs
         run: |
           if [ -f "openapi.yaml" ] || [ -f "openapi.json" ]; then
@@ -69,7 +69,7 @@ jobs:
   validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check for validation patterns
         run: |
           VALIDATION=$(grep -rE "validate|sanitize|Schema|Validator" --include="*.rs" --include="*.res" --include="*.ex" . 2>/dev/null | wc -l || echo "0")
@@ -83,7 +83,7 @@ jobs:
       contents: read
       attestations: write
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Generate SBOM
         run: |
           echo "SBOM generation would run here"
@@ -99,7 +99,7 @@ jobs:
   verification:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check SPARK proofs
         run: |
           if find . -name "*.ads" | grep -q .; then
@@ -115,7 +115,7 @@ jobs:
   functionality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check TODOs and FIXMEs
         run: |
           echo "=== Incomplete items ==="
@@ -128,7 +128,7 @@ jobs:
   performance:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check for benchmarks
         run: |
           BENCHES=$(find . -name "*bench*" -o -name "*perf*" | wc -l)
@@ -145,7 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     if: hashFiles('**/*.html') != ''
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: HTML accessibility check
         run: |
           echo "Checking for a11y attributes..."
@@ -159,7 +159,7 @@ jobs:
   license:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check license files
         run: |
           if [ -f "LICENSE" ] || [ -f "LICENSE.txt" ] || [ -f "LICENSE.md" ]; then
@@ -177,7 +177,7 @@ jobs:
   documentation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Check docs completeness
         run: |
           DOCS=""
