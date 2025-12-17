@@ -1,19 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
+# RSR Policy: npm is FORBIDDEN - use Deno instead
 version: 2
 updates:
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
     groups:
       actions:
         patterns:
           - "*"
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
