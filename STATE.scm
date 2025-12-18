@@ -6,10 +6,10 @@
 (define state
   `((metadata
      (format-version . "2.0")
-     (schema-version . "2025-12-18")
+     (schema-version . "2025-12-17")
      (project . "zotpress")
      (created . "2025-12-10T19:03:55+00:00")
-     (updated . "2025-12-18T00:00:00+00:00"))
+     (updated . "2025-12-17T00:00:00+00:00"))
 
     (position
      (summary . "RSR-compliant WordPress plugin for Zotero integration")
@@ -17,13 +17,12 @@
      (maturity . beta)
      (rsr-tier . gold)
      (primary-language . "php")
-     (secondary-languages . ("rescript"))
-     (build-tooling . "deno")
+     (secondary-languages . ("rescript" "typescript"))
      (domain . "WordPress/Zotero"))
 
     (context
-     (last-session . "2025-12-18")
-     (focus-area . "ReScript migration and RSR enforcement")
+     (last-session . "2025-12-17")
+     (focus-area . "Security hardening and RSR compliance")
      (blockers . ())
      (decisions-pending . ()))
 
@@ -39,25 +38,17 @@
      ((name . "Guix package definition")
       (status . complete)
       (files . ("guix.scm"))
-      (notes . "Proper build phases and description"))
-     ((name . "ReScript migration")
-      (status . complete)
-      (files . ("src/rescript/Zotpress.res" "src/rescript/Utils.res"))
-      (notes . "Frontend migrated from TypeScript to ReScript"))
-     ((name . "RSR enforcement")
-      (status . complete)
-      (files . (".github/workflows/rsr-antipattern.yml"))
-      (notes . "TypeScript blocked in src/, Deno scripts allowed")))
+      (notes . "Proper build phases and description")))
 
     (issues
      (active . ())
      (resolved
-      . (((issue . "Actions not SHA-pinned")
-          (resolution . "Updated all workflow files"))
-         ((issue . "TypeScript in src/")
-          (resolution . "Migrated to ReScript, removed zotpress.ts"))))
-     (known-limitations . ())
-     (technical-debt . ()))
+      . ((issue . "Actions not SHA-pinned")
+         (resolution . "Updated all workflow files")))
+     (known-limitations
+      . ("TypeScript in src/ for legacy compatibility"))
+     (technical-debt
+      . ("ReScript migration incomplete")))
 
     (language-policy
      (allowed
@@ -83,12 +74,12 @@
            "Shortcode support"
            "Widget integration"
            "RSR Gold compliance"
-           "SHA-pinned CI/CD"
-           "ReScript frontend")))
+           "SHA-pinned CI/CD")))
       ((version . "1.1.0")
        (status . planned)
        (features
-        . ("Improved caching"
+        . ("ReScript migration for frontend"
+           "Improved caching"
            "Block editor support"
            "Accessibility improvements")))
       ((version . "1.2.0")
@@ -100,9 +91,9 @@
       ((version . "2.0.0")
        (status . future)
        (features
-        . ("Zotero API v4 support"
-           "Real-time sync"
-           "Offline mode")))))
+        . ("Full ReScript rewrite"
+           "Zotero API v4 support"
+           "Real-time sync")))))
 
     (ecosystem
      (part-of . ("RSR Framework" "hyperpolymath ecosystem"))
@@ -113,21 +104,18 @@
     (security
      (compliance . ("RSR Gold" "OWASP Top 10"))
      (scanning . ("CodeQL" "TruffleHog" "PHPStan" "Dependabot"))
-     (actions-pinned . #t)
-     (language-enforcement . #t))
+     (actions-pinned . #t))
 
     (session-files
-     (".github/workflows/rsr-antipattern.yml"
-      ".github/workflows/codeql-analysis.yml"
-      "src/js/zotpress.ts (REMOVED)"
-      "scripts/build-js.ts"
-      "deno.json"
-      "STATE.scm"))
+     (".github/workflows/*.yml"
+      "SECURITY.md"
+      "guix.scm"
+      "STATE.scm"
+      ".github/dependabot.yml"))
 
     (notes
-     "ReScript migration completed 2025-12-18. TypeScript removed from src/.
-      Deno build scripts remain in scripts/ directory (allowed per RSR policy).
-      RSR anti-pattern workflow updated to enforce language policy.
-      Python exception added for robot-repo-bot offline maintenance bot.")))
+     "Security review completed 2025-12-17. All GitHub Actions now SHA-pinned.
+      SECURITY.md updated with project-specific content. Guix package definition
+      improved with proper build phases and description. Ready for 1.0.0 release.")))
 
 state
