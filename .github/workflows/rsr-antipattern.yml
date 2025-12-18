@@ -1,8 +1,14 @@
 # RSR Anti-Pattern CI Check
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Enforces: No TypeScript, No Go, No Python (except SaltStack), No npm
-# Allows: ReScript, Deno, WASM, Rust, OCaml, Haskell, Guile/Scheme
+# Enforces RSR language policy:
+#   - No TypeScript in src/ (use ReScript instead)
+#   - TypeScript allowed ONLY in scripts/ (Deno build tooling)
+#   - No Go files
+#   - No Python (except SaltStack and robot-repo-bot)
+#   - No npm/yarn lockfiles (use Deno)
+#
+# Allows: ReScript, Deno (for build scripts), WASM, Rust, OCaml, Haskell, Guile/Scheme
 
 name: RSR Anti-Pattern Check
 
@@ -18,66 +24,132 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - name: Check for TypeScript
+      - name: Check for TypeScript in src/ (must use ReScript)
         run: |
-          if find . -name "*.ts" -o -name "*.tsx" | grep -v node_modules | grep -q .; then
-            echo "❌ TypeScript files detected - use ReScript instead"
-            find . -name "*.ts" -o -name "*.tsx" | grep -v node_modules
+          # Find TypeScript files ONLY in src/ directory (not in scripts/)
+          # scripts/*.ts are Deno build scripts and are allowed
+          TS_IN_SRC=$(find ./src -name "*.ts" -o -name "*.tsx" 2>/dev/null | grep -v node_modules || true)
+          if [ -n "$TS_IN_SRC" ]; then
+            echo "❌ TypeScript files detected in src/ - use ReScript instead"
+            echo "$TS_IN_SRC"
+            echo ""
+            echo "Note: TypeScript is ONLY allowed in scripts/ directory for Deno build tooling"
             exit 1
           fi
-          echo "✅ No TypeScript files"
+          echo "✅ No TypeScript in src/ (ReScript enforced)"
+
+          # Info about allowed Deno scripts
+          DENO_SCRIPTS=$(find ./scripts -name "*.ts" 2>/dev/null || true)
+          if [ -n "$DENO_SCRIPTS" ]; then
+            echo "ℹ️  Deno build scripts found (allowed):"
+            echo "$DENO_SCRIPTS"
+          fi
 
       - name: Check for Go
         run: |
-          if find . -name "*.go" | grep -q .; then
+          if find . -name "*.go" -not -path "./.git/*" | grep -q .; then
             echo "❌ Go files detected - use Rust/WASM instead"
-            find . -name "*.go"
+            find . -name "*.go" -not -path "./.git/*"
             exit 1
           fi
           echo "✅ No Go files"
 
-      - name: Check for Python (non-SaltStack)
+      - name: Check for Python (non-SaltStack, non-robot-repo-bot)
         run: |
-          PY_FILES=$(find . -name "*.py" | grep -v salt | grep -v _states | grep -v _modules | grep -v pillar | grep -v venv | grep -v __pycache__ || true)
+          # Python is allowed ONLY for:
+          # - SaltStack (salt, _states, _modules, pillar directories)
+          # - robot-repo-bot (offline maintenance bot)
+          PY_FILES=$(find . -name "*.py" -not -path "./.git/*" \
+            | grep -v salt \
+            | grep -v _states \
+            | grep -v _modules \
+            | grep -v pillar \
+            | grep -v venv \
+            | grep -v __pycache__ \
+            | grep -v robot-repo-bot \
+            || true)
           if [ -n "$PY_FILES" ]; then
-            echo "❌ Python files detected - only allowed for SaltStack"
+            echo "❌ Python files detected - only allowed for SaltStack and robot-repo-bot"
             echo "$PY_FILES"
+            echo ""
+            echo "Allowed Python locations:"
+            echo "  - */salt/*"
+            echo "  - */_states/*"
+            echo "  - */_modules/*"
+            echo "  - */pillar/*"
+            echo "  - */robot-repo-bot/*"
             exit 1
           fi
-          echo "✅ No non-SaltStack Python files"
+          echo "✅ No unauthorized Python files"
+
+          # Check for allowed Python
+          SALT_PY=$(find . -name "*.py" -path "*salt*" 2>/dev/null || true)
+          BOT_PY=$(find . -name "*.py" -path "*robot-repo-bot*" 2>/dev/null || true)
+          if [ -n "$SALT_PY" ]; then
+            echo "ℹ️  SaltStack Python files found (allowed)"
+          fi
+          if [ -n "$BOT_PY" ]; then
+            echo "ℹ️  robot-repo-bot Python files found (allowed)"
+          fi
 
       - name: Check for npm lockfiles
         run: |
-          if [ -f "package-lock.json" ] || [ -f "yarn.lock" ]; then
-            echo "❌ npm/yarn lockfile detected - use Deno instead"
+          if [ -f "package-lock.json" ] || [ -f "yarn.lock" ] || [ -f "pnpm-lock.yaml" ]; then
+            echo "❌ npm/yarn/pnpm lockfile detected - use Deno instead"
+            echo ""
+            echo "RSR Policy: Deno for JavaScript/TypeScript tooling"
+            echo "  - npm/npx/node_modules: FORBIDDEN"
+            echo "  - Use deno.json with 'npm:' specifiers for npm packages"
             exit 1
           fi
           echo "✅ No npm lockfiles"
 
-      - name: Check for tsconfig
+      - name: Check for tsconfig.json (should use deno.json)
         run: |
           if [ -f "tsconfig.json" ]; then
-            echo "❌ tsconfig.json detected - use ReScript instead"
+            echo "❌ tsconfig.json detected"
+            echo ""
+            echo "RSR Policy:"
+            echo "  - For Deno scripts: use deno.json compilerOptions"
+            echo "  - For frontend: use ReScript (rescript.json)"
             exit 1
           fi
           echo "✅ No tsconfig.json"
 
-      - name: Verify Deno presence (if package.json exists)
+      - name: Verify Deno configuration
         run: |
-          if [ -f "package.json" ]; then
-            if [ ! -f "deno.json" ] && [ ! -f "deno.jsonc" ]; then
-              echo "⚠️ Warning: package.json without deno.json - migration recommended"
+          if [ -f "deno.json" ] || [ -f "deno.jsonc" ]; then
+            echo "✅ Deno configuration present"
+          elif [ -f "package.json" ]; then
+            echo "⚠️ Warning: package.json without deno.json"
+            echo "   Consider migrating to Deno for JavaScript/TypeScript tooling"
+          fi
+
+      - name: Verify ReScript configuration
+        run: |
+          if [ -f "rescript.json" ]; then
+            echo "✅ ReScript configuration present"
+            if [ -d "src/rescript" ]; then
+              RES_COUNT=$(find src/rescript -name "*.res" | wc -l)
+              echo "   Found $RES_COUNT ReScript source files"
             fi
           fi
-          echo "✅ Deno configuration check complete"
 
       - name: Summary
         run: |
-          echo "╔════════════════════════════════════════════════════════════╗"
-          echo "║           RSR Anti-Pattern Check Passed ✅                 ║"
-          echo "║                                                            ║"
-          echo "║  Allowed: ReScript, Deno, WASM, Rust, OCaml, Haskell,     ║"
-          echo "║           Guile/Scheme, SaltStack (Python)                 ║"
-          echo "║                                                            ║"
-          echo "║  Blocked: TypeScript, Go, npm, Python (non-Salt)          ║"
-          echo "╚════════════════════════════════════════════════════════════╝"
+          echo "╔════════════════════════════════════════════════════════════════╗"
+          echo "║              RSR Anti-Pattern Check Passed ✅                  ║"
+          echo "╠════════════════════════════════════════════════════════════════╣"
+          echo "║  ✅ Allowed:                                                   ║"
+          echo "║     • ReScript (frontend code)                                 ║"
+          echo "║     • Deno TypeScript (scripts/ only, for build tooling)       ║"
+          echo "║     • Rust, WASM, OCaml, Haskell, Guile/Scheme                 ║"
+          echo "║     • Python (SaltStack, robot-repo-bot only)                  ║"
+          echo "║     • PHP (WordPress plugin code with PHPCS/PHPStan)           ║"
+          echo "╠════════════════════════════════════════════════════════════════╣"
+          echo "║  ❌ Blocked:                                                   ║"
+          echo "║     • TypeScript in src/ (use ReScript)                        ║"
+          echo "║     • Go (use Rust/WASM)                                       ║"
+          echo "║     • npm/yarn/pnpm (use Deno)                                 ║"
+          echo "║     • Python (except allowed locations)                        ║"
+          echo "╚════════════════════════════════════════════════════════════════╝"

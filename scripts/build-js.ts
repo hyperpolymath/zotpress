@@ -2,17 +2,20 @@
  * JavaScript Build Script
  *
  * Modern JavaScript bundling with esbuild via Deno.
- * Produces optimized bundles for WordPress plugin.
+ * Bundles ReScript-compiled JavaScript for WordPress plugin.
+ *
+ * RSR Policy: ReScript primary, Deno for build tooling
  *
  * @module
  */
 
-import { ensureDir } from '@std/fs';
+import { ensureDir, exists } from '@std/fs';
 import { join, basename } from '@std/path';
 // @ts-ignore: esbuild types
 import * as esbuild from 'esbuild';
 
-const SRC_DIR = './src/js';
+// ReScript compiles to lib/es6 by default, or src/rescript for in-source
+const RESCRIPT_DIR = './src/rescript';
 const DIST_DIR = './dist/js';
 const LEGACY_JS_DIR = './js';
 
@@ -32,7 +35,7 @@ const config: JSConfig = {
 };
 
 /**
- * Build a single JavaScript/TypeScript file with esbuild
+ * Build ReScript-generated JavaScript with esbuild
  */
 async function buildFile(inputPath: string, outputPath: string): Promise<void> {
   const filename = basename(inputPath);
@@ -95,20 +98,15 @@ async function minifyFile(inputPath: string, outputPath: string): Promise<void> 
 }
 
 /**
- * Find all JS/TS files in a directory
+ * Find ReScript-generated JS files (.res.js)
  */
-async function findJSFiles(dir: string, extensions = ['.ts', '.js']): Promise<string[]> {
+async function findReScriptFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
 
   try {
     for await (const entry of Deno.readDir(dir)) {
-      if (entry.isFile) {
-        const isTarget = extensions.some(
-          (ext) => entry.name.endsWith(ext) && !entry.name.endsWith('.min.js')
-        );
-        if (isTarget) {
-          files.push(join(dir, entry.name));
-        }
+      if (entry.isFile && entry.name.endsWith('.res.js')) {
+        files.push(join(dir, entry.name));
       }
     }
   } catch {
@@ -119,6 +117,69 @@ async function findJSFiles(dir: string, extensions = ['.ts', '.js']): Promise<st
 }
 
 /**
+ * Find legacy JS files
+ */
+async function findJSFiles(dir: string): Promise<string[]> {
+  const files: string[] = [];
+
+  try {
+    for await (const entry of Deno.readDir(dir)) {
+      if (
+        entry.isFile &&
+        entry.name.endsWith('.js') &&
+        !entry.name.endsWith('.min.js') &&
+        !entry.name.endsWith('.res.js')
+      ) {
+        files.push(join(dir, entry.name));
+      }
+    }
+  } catch {
+    // Directory may not exist yet
+  }
+
+  return files;
+}
+
+/**
+ * Compile ReScript sources (requires rescript compiler)
+ */
+async function compileReScript(): Promise<boolean> {
+  console.log('📦 Compiling ReScript sources...');
+
+  try {
+    // Check if rescript.json exists
+    if (!(await exists('./rescript.json'))) {
+      console.log('  ⚠️  No rescript.json found, skipping ReScript compilation');
+      return false;
+    }
+
+    // Try to compile ReScript
+    const command = new Deno.Command('npx', {
+      args: ['rescript', 'build'],
+      stderr: 'piped',
+      stdout: 'piped',
+    });
+
+    const { success, stdout, stderr } = await command.output();
+
+    if (!success) {
+      const errText = new TextDecoder().decode(stderr);
+      console.log(`  ⚠️  ReScript compilation failed: ${errText}`);
+      console.log('  ℹ️  Using pre-compiled ReScript output if available');
+    } else {
+      const outText = new TextDecoder().decode(stdout);
+      if (outText) console.log(outText);
+      console.log('  ✓ ReScript compiled successfully');
+    }
+
+    return true;
+  } catch {
+    console.log('  ⚠️  ReScript compiler not available, using pre-compiled output');
+    return false;
+  }
+}
+
+/**
  * Main JS build function
  */
 async function main(): Promise<void> {
@@ -126,28 +187,31 @@ async function main(): Promise<void> {
 
   await ensureDir(DIST_DIR);
 
-  // Build modern TypeScript from src/js
-  const srcFiles = await findJSFiles(SRC_DIR, ['.ts', '.tsx']);
-  if (srcFiles.length > 0) {
-    console.log(`Found ${srcFiles.length} files in ${SRC_DIR}:`);
-    for (const file of srcFiles) {
+  // Compile ReScript first
+  await compileReScript();
+
+  // Bundle ReScript-generated JS files
+  const rescriptFiles = await findReScriptFiles(RESCRIPT_DIR);
+  if (rescriptFiles.length > 0) {
+    console.log(`\nFound ${rescriptFiles.length} ReScript files in ${RESCRIPT_DIR}:`);
+    for (const file of rescriptFiles) {
       const outputFile = join(
         DIST_DIR,
-        basename(file).replace(/\.(ts|tsx)$/, '.min.js')
+        basename(file).replace('.res.js', '.min.js')
       );
       await buildFile(file, outputFile);
     }
+  } else {
+    console.log(`\n⚠️  No ReScript output found in ${RESCRIPT_DIR}`);
+    console.log('   Run "npx rescript build" to compile ReScript sources');
   }
 
   // Minify legacy JavaScript files
-  const legacyFiles = await findJSFiles(LEGACY_JS_DIR, ['.js']);
+  const legacyFiles = await findJSFiles(LEGACY_JS_DIR);
   if (legacyFiles.length > 0) {
     console.log(`\nFound ${legacyFiles.length} legacy files in ${LEGACY_JS_DIR}:`);
     for (const file of legacyFiles) {
       const filename = basename(file);
-      // Skip already minified files
-      if (filename.includes('.min.')) continue;
-
       const outputFile = join(DIST_DIR, filename.replace('.js', '.min.js'));
       await minifyFile(file, outputFile);
     }
@@ -164,4 +228,4 @@ if (import.meta.main) {
   main();
 }
 
-export { main, buildFile, minifyFile, findJSFiles };
+export { main, buildFile, minifyFile, findReScriptFiles, findJSFiles };

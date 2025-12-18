@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 name: "CodeQL"
 
 on:
@@ -23,12 +24,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # JavaScript/TypeScript for Deno build scripts
           - language: javascript-typescript
             build-mode: none
-          - language: python
-            build-mode: none
-          - language: go
-            build-mode: autobuild
+          # Note: Go and Python removed per RSR policy
+          # - Go: Use Rust/WASM instead
+          # - Python: Only allowed for SaltStack/robot-repo-bot (not in this repo)
 
     steps:
     - name: Checkout repository
