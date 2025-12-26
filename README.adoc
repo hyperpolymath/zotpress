@@ -1,6 +1,12 @@
-= zotpress
-Jonathan D.A. Jewell <jonathan.jewell@gmail.com>
+// SPDX-License-Identifier: AGPL-3.0-or-later
+= Zotpress
+:author: Jonathan D.A. Jewell
+:email: jonathan.jewell@gmail.com
+:revnumber: 8.0.0
+:revdate: 2025-12-26
 :toc: macro
+:toc-title: Contents
+:toclevels: 3
 :icons: font
 :source-highlighter: rouge
 :experimental:
@@ -8,53 +14,423 @@ Jonathan D.A. Jewell <jonathan.jewell@gmail.com>
 :url-gitlab: https://gitlab.com/hyperpolymath/zotpress
 :url-bitbucket: https://bitbucket.org/hyperpolymath/zotpress
 :url-codeberg: https://codeberg.org/hyperpolymath/zotpress
+:url-zotero: https://www.zotero.org
 
-Zotero to WordPress integration
+**Zotero to WordPress integration — display your academic references beautifully**
 
 image:https://img.shields.io/badge/RSR-Certified-gold[RSR Certified,link=https://github.com/hyperpolymath/rhodium-standard-repositories]
 image:https://img.shields.io/badge/License-AGPL%20v3-blue[License]
+image:https://img.shields.io/badge/WordPress-8.1%2B-21759b[WordPress]
+image:https://img.shields.io/badge/PHP-8.1%2B-777BB4[PHP]
+image:https://img.shields.io/badge/ReScript-Modern%20Frontend-E84F4F[ReScript]
 
 toc::[]
 
 == Overview
-Domain: *software-development*
+
+Zotpress is a WordPress plugin that bridges the gap between {url-zotero}[Zotero], the world's leading open-source reference management software, and WordPress publishing. It enables academics, researchers, students, and writers to display their Zotero libraries directly on WordPress sites via intuitive shortcodes and widgets.
+
+=== Key Features
+
+[cols="1,3"]
+|===
+| Feature | Description
+
+| **Bibliography Display**
+| Render formatted bibliographies from Zotero libraries, collections, or tags
+
+| **In-Text Citations**
+| Insert properly formatted in-text citations with automatic bibliography generation
+
+| **Multiple Citation Styles**
+| Support for thousands of CSL citation styles (APA, MLA, Chicago, Harvard, etc.)
+
+| **Shortcode System**
+| Flexible `[zotpress]` and `[zotpressInText]` shortcodes with extensive parameters
+
+| **Collection Filtering**
+| Display items from specific Zotero collections
+
+| **Tag Filtering**
+| Filter references by Zotero tags
+
+| **Author/Year Filtering**
+| Query by author name or publication year
+
+| **Download Links**
+| Show attached PDFs and files for download
+
+| **Abstracts & Notes**
+| Optionally display abstracts and notes from Zotero
+
+| **Cover Images**
+| Display book covers via Open Library integration
+
+| **Admin Interface**
+| WordPress admin panel for account management and settings
+
+| **Widgets**
+| Sidebar and metabox widgets for theme integration
+
+| **SEO-Friendly**
+| Server-side rendering for search engine indexing
+
+| **Accessibility**
+| ARIA labels and screen reader support
+|===
+
+== Architecture
+
+=== Technology Stack
+
+[source]
+----
+┌─────────────────────────────────────────────────────────────┐
+│                        Zotpress                              │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend Layer                                              │
+│  ├── ReScript (Modern, type-safe)                           │
+│  │   ├── DOM bindings & Fetch API                           │
+│  │   ├── IntersectionObserver (lazy loading)                │
+│  │   └── Accessibility (ARIA, screen reader)                │
+│  └── CSS (Custom properties, component-based)               │
+├─────────────────────────────────────────────────────────────┤
+│  Backend Layer (PHP 8.1+)                                    │
+│  ├── lib/admin/     → Admin interface & settings            │
+│  ├── lib/request/   → Zotero API integration                │
+│  ├── lib/shortcode/ → [zotpress] shortcode handlers         │
+│  └── lib/widget/    → WordPress widgets                     │
+├─────────────────────────────────────────────────────────────┤
+│  External Services                                           │
+│  ├── Zotero API (api.zotero.org)                            │
+│  └── Open Library API (covers.openlibrary.org)              │
+└─────────────────────────────────────────────────────────────┘
+----
+
+=== Project Structure
+
+[source]
+----
+zotpress/
+├── lib/                    # PHP backend
+│   ├── admin/              # Admin interface (12 files)
+│   │   ├── admin.php       # Core admin functionality
+│   │   ├── admin.accounts.php
+│   │   ├── admin.browse.php
+│   │   ├── admin.menu.php
+│   │   └── ...
+│   ├── request/            # API layer (4 files)
+│   │   ├── request.class.php
+│   │   ├── request.cite.php
+│   │   └── ...
+│   ├── shortcode/          # Shortcodes (7 files)
+│   │   ├── shortcode.php   # Main [zotpress] handler
+│   │   ├── shortcode.intext.php
+│   │   └── ...
+│   └── widget/             # Widgets (3 files)
+├── src/
+│   ├── rescript/           # Modern frontend
+│   │   ├── Zotpress.res    # Main module (~520 lines)
+│   │   └── Utils.res       # Utilities
+│   ├── js/                 # JavaScript fallback
+│   │   └── zotpress.ts
+│   └── css/                # Styles
+│       ├── variables.css   # Design tokens
+│       └── components.css  # Component styles
+├── tests/                  # Test suites
+├── scripts/                # Build scripts (Deno)
+├── docs/                   # Documentation
+├── .github/                # CI/CD workflows (13+)
+└── [config files]          # composer.json, deno.json, etc.
+----
 
 == Installation
+
+=== From WordPress Plugin Directory
+
+[source]
+----
+1. Go to Plugins → Add New in WordPress admin
+2. Search for "Zotpress"
+3. Click Install Now, then Activate
+----
+
+=== Manual Installation
 
 [source,bash]
 ----
 # Clone from GitHub (primary)
-git clone {url-github}
+git clone https://github.com/hyperpolymath/zotpress.git
 
 # Or from mirrors
-git clone {url-gitlab}
-git clone {url-codeberg}
+git clone https://gitlab.com/hyperpolymath/zotpress.git
+git clone https://codeberg.org/hyperpolymath/zotpress.git
+
+# Copy to WordPress plugins directory
+cp -r zotpress /path/to/wordpress/wp-content/plugins/
 ----
+
+=== Development Setup
+
+[source,bash]
+----
+# PHP dependencies
+composer install
+
+# JavaScript/ReScript tooling (uses Deno, not npm)
+deno task build
+
+# Run tests
+composer test
+deno test
+----
+
+== Usage
+
+=== Basic Shortcode
+
+Display your entire Zotero library:
+
+[source]
+----
+[zotpress userid="123456"]
+----
+
+=== Filter by Collection
+
+[source]
+----
+[zotpress userid="123456" collection="ABC123"]
+----
+
+=== Filter by Tags
+
+[source]
+----
+[zotpress userid="123456" tags="machine-learning,neural-networks"]
+----
+
+=== Filter by Author and Year
+
+[source]
+----
+[zotpress userid="123456" author="Smith" year="2023,2024"]
+----
+
+=== In-Text Citations with Bibliography
+
+[source]
+----
+According to [zotpressInText item="ABC123"], the results show...
+
+Another study [zotpressInText items="DEF456,GHI789"] confirmed this.
+
+[zotpressInTextBib]
+----
+
+=== Full Shortcode Parameters
+
+[cols="2,1,4"]
+|===
+| Parameter | Default | Description
+
+| `userid` / `user_id`
+| -
+| Zotero user/group ID
+
+| `nickname`
+| -
+| Account nickname (alternative to userid)
+
+| `collection` / `collections`
+| -
+| Collection key(s), comma-separated
+
+| `item` / `items`
+| -
+| Specific item key(s)
+
+| `tag` / `tags`
+| -
+| Filter by tag(s)
+
+| `author` / `authors`
+| -
+| Filter by author name(s)
+
+| `year` / `years`
+| -
+| Filter by year(s)
+
+| `itemtype`
+| all
+| Filter by item type (book, journalArticle, etc.)
+
+| `style`
+| apa
+| Citation style (CSL style name)
+
+| `limit`
+| 50
+| Maximum items to display
+
+| `sortby`
+| default
+| Sort field (date, title, creator)
+
+| `order`
+| asc
+| Sort direction (asc/desc)
+
+| `title`
+| no
+| Show year headers
+
+| `showimage`
+| no
+| Display cover images (yes/openlib)
+
+| `showtags`
+| no
+| Display item tags
+
+| `download` / `downloadable`
+| no
+| Show download links for attachments
+
+| `notes`
+| no
+| Display notes
+
+| `abstract` / `abstracts`
+| no
+| Display abstracts
+
+| `cite` / `citeable`
+| no
+| Show copy citation button
+
+| `target`
+| no
+| Open links in new tab
+
+| `highlight`
+| -
+| Highlight specific items
+|===
 
 == Mirrors
 
-[cols="1,2"]
+This repository is mirrored across multiple forges for resilience:
+
+[cols="1,2,1"]
 |===
-| Platform | URL
+| Platform | URL | Status
 
-| GitHub (primary) | {url-github}
-| GitLab | {url-gitlab}
-| Bitbucket | {url-bitbucket}
-| Codeberg | {url-codeberg}
+| GitHub (primary)
+| {url-github}
+| ✓ Primary
+
+| GitLab
+| {url-gitlab}
+| ✓ Mirror
+
+| Codeberg
+| {url-codeberg}
+| ✓ Mirror
+
+| Bitbucket
+| {url-bitbucket}
+| ✓ Mirror
 |===
 
-== License
+== Development
 
-Licensed under AGPL-3.0-or-later OR LicenseRef-Palimpsest-0.5.
+=== Build Commands
 
-See link:LICENSE[LICENSE] for details.
+[source,bash]
+----
+# Build all assets
+deno task build
+
+# Watch mode (development)
+deno task dev
+
+# Run PHP tests
+composer test
+
+# Run JavaScript tests
+deno test
+
+# Static analysis
+composer analyse    # PHPStan
+composer psalm      # Psalm
+
+# Code formatting
+composer format
+deno fmt
+----
+
+=== Architecture Decisions
+
+Key decisions documented in `META.scm`:
+
+* **ReScript over TypeScript** — Type-sound, cleaner JS output, RSR policy compliance
+* **Deno over Node.js/npm** — Secure defaults, no dependency hell
+* **PHP 8.1+ minimum** — Modern features, better static analysis
+* **AGPL-3.0 licensing** — Strong copyleft for network services
 
 == Contributing
 
-See link:CONTRIBUTING.adoc[CONTRIBUTING.adoc].
+See link:CONTRIBUTING.md[CONTRIBUTING.md] for guidelines.
+
+Key points:
+
+* Follow language policy (ReScript, not TypeScript; Deno, not npm)
+* Run tests before submitting PRs
+* Add SPDX license headers to new files
+* Sign commits if possible
+
+== Security
+
+See link:SECURITY.md[SECURITY.md] for:
+
+* Vulnerability reporting process
+* Supported versions
+* Security measures
+
+== License
+
+Licensed under **AGPL-3.0-or-later** with optional **Palimpsest-0.5** philosophical overlay.
+
+See link:LICENSE[LICENSE] for full terms.
+
+== Citation
+
+To cite Zotpress in academic work:
+
+[source,bibtex]
+----
+@software{zotpress_2025,
+  author = {Jewell, Jonathan D.A.},
+  title = {Zotpress: Zotero to WordPress Integration},
+  year = {2025},
+  url = {https://github.com/hyperpolymath/zotpress},
+  license = {AGPL-3.0-or-later}
+}
+----
+
+See link:docs/CITATIONS.adoc[docs/CITATIONS.adoc] for more formats.
+
+== Acknowledgments
+
+* The link:{url-zotero}[Zotero] team for their excellent API
+* WordPress community
+* All contributors and users
 
 == Metadata
 
-* Domain: software-development
-* Framework: RSR (Rhodium Standard Repository)
-* Dublin Core: link:.well-known/dc.xml[.well-known/dc.xml]
+* **Domain**: Academic publishing, reference management
+* **Framework**: RSR (Rhodium Standard Repository)
+* **Status**: Active development (75% to v8.0 stable)
+* **Dublin Core**: link:.well-known/dc.xml[.well-known/dc.xml]
