@@ -24,6 +24,50 @@ image:https://img.shields.io/badge/WordPress-8.1%2B-21759b[WordPress]
 image:https://img.shields.io/badge/PHP-8.1%2B-777BB4[PHP]
 image:https://img.shields.io/badge/ReScript-Modern%20Frontend-E84F4F[ReScript]
 
+== Quick Start (30 seconds)
+
+[source,bash]
+----
+# Clone and install
+git clone https://github.com/hyperpolymath/zotpress.git
+./zotpress/install.sh /path/to/wp-content/plugins
+
+# Or with Make
+make install WP_PLUGINS=/path/to/wp-content/plugins
+----
+
+Then in WordPress:
+
+1. **Activate** plugin in Plugins menu
+2. **Add account**: Zotpress → Accounts → Enter your https://www.zotero.org/settings/keys[Zotero User ID + API Key]
+3. **Use shortcode**: `[zotpress limit="10"]`
+
+=== Demo
+
+[source,bash]
+----
+# See usage examples
+make demo
+
+# Test API without WordPress
+php demo/test-api.php YOUR_USER_ID YOUR_API_KEY
+
+# Or open demo/standalone.html in browser
+----
+
+=== Common Shortcodes
+
+[source]
+----
+[zotpress limit="10"]                           # Latest 10 items
+[zotpress collection="ABC123"]                  # Specific collection
+[zotpress author="Smith" year="2024"]           # Filter by author/year
+[zotpress tag="machine-learning"]               # Filter by tag
+[zotpress style="chicago-note-bibliography"]    # Chicago style
+----
+
+---
+
 toc::[]
 
 == Overview
@@ -146,6 +190,21 @@ zotpress/
 
 == Installation
 
+=== Quick Install (Recommended)
+
+[source,bash]
+----
+git clone https://github.com/hyperpolymath/zotpress.git
+cd zotpress
+./install.sh /path/to/wp-content/plugins
+----
+
+Or with Make:
+[source,bash]
+----
+make install WP_PLUGINS=/path/to/wp-content/plugins
+----
+
 === From WordPress Plugin Directory
 
 [source]
@@ -159,30 +218,32 @@ zotpress/
 
 [source,bash]
 ----
-# Clone from GitHub (primary)
+# Clone from any mirror
 git clone https://github.com/hyperpolymath/zotpress.git
-
-# Or from mirrors
 git clone https://gitlab.com/hyperpolymath/zotpress.git
 git clone https://codeberg.org/hyperpolymath/zotpress.git
 
-# Copy to WordPress plugins directory
-cp -r zotpress /path/to/wordpress/wp-content/plugins/
+# Install (symlink for dev, --copy for production)
+./install.sh /path/to/wp-content/plugins
+./install.sh /path/to/wp-content/plugins --copy
 ----
 
 === Development Setup
 
 [source,bash]
 ----
-# PHP dependencies
-composer install
+# Install dependencies
+composer install              # PHP tools (testing, linting)
+deno cache deno.json          # JS tools (auto-cached)
 
-# JavaScript/ReScript tooling (uses Deno, not npm)
-deno task build
+# Build assets
+make build                    # Or: deno task build
+
+# Watch mode
+make dev                      # Or: deno task dev
 
 # Run tests
-composer test
-deno test
+composer test && deno test
 ----
 
 == Usage
