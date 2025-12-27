@@ -184,6 +184,7 @@ case 0:
     // Send the user off to the provider to authorize your request token (could also be a link the user follows)
     $redirectUrl = "{$zotero_authorize_endpoint}?oauth_token={$request_token_info['oauth_token']}";
     wp_redirect($redirectUrl, 301);
+    exit; // Required: prevent further script execution after redirect
 
     break;
 
@@ -257,8 +258,8 @@ if ( isset( $access_token_info ) )
     );
 
     // KS: Redirect
-    header("Location: ".admin_url("/admin.php?page=Zotpress&accounts=true"));
-    die();
+    wp_redirect(admin_url("/admin.php?page=Zotpress&accounts=true"));
+    exit; // Required: prevent further script execution after redirect
 }
 
 ?>
