@@ -20,9 +20,12 @@
 
 image:https://img.shields.io/badge/RSR-Certified-gold[RSR Certified,link=https://github.com/hyperpolymath/rhodium-standard-repositories]
 image:https://img.shields.io/badge/License-AGPL%20v3-blue[License]
-image:https://img.shields.io/badge/WordPress-8.1%2B-21759b[WordPress]
+image:https://img.shields.io/badge/WordPress-6.0%2B-21759b[WordPress]
 image:https://img.shields.io/badge/PHP-8.1%2B-777BB4[PHP]
 image:https://img.shields.io/badge/ReScript-Modern%20Frontend-E84F4F[ReScript]
+
+image:https://github.com/hyperpolymath/zotpress/actions/workflows/test.yml/badge.svg[Tests,link=https://github.com/hyperpolymath/zotpress/actions/workflows/test.yml]
+image:https://github.com/hyperpolymath/zotpress/actions/workflows/php-standards.yml/badge.svg[PHP Standards,link=https://github.com/hyperpolymath/zotpress/actions/workflows/php-standards.yml]
 
 == Quick Start (30 seconds)
 
@@ -65,6 +68,39 @@ php demo/test-api.php YOUR_USER_ID YOUR_API_KEY
 [zotpress tag="machine-learning"]               # Filter by tag
 [zotpress style="chicago-note-bibliography"]    # Chicago style
 ----
+
+=== Compatibility Matrix
+
+[cols="1,2,2"]
+|===
+| Component | Supported Versions | Tested
+
+| **PHP**
+| 8.1, 8.2, 8.3, 8.4
+| image:https://img.shields.io/badge/8.1-passing-success[8.1] image:https://img.shields.io/badge/8.2-passing-success[8.2] image:https://img.shields.io/badge/8.3-passing-success[8.3]
+
+| **WordPress**
+| 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7+
+| image:https://img.shields.io/badge/6.4+-passing-success[6.4+]
+
+| **MySQL/MariaDB**
+| MySQL 5.7+, MariaDB 10.3+
+| image:https://img.shields.io/badge/MySQL%208-passing-success[MySQL 8]
+
+| **Browser (admin)**
+| Chrome 90+, Firefox 90+, Safari 14+, Edge 90+
+| Modern browsers only
+
+| **Zotero API**
+| v3 (current)
+| image:https://img.shields.io/badge/v3-passing-success[v3]
+|===
+
+**Minimum Requirements:**
+
+* PHP 8.1+ with extensions: `curl`, `json`, `mbstring`, `xml`
+* WordPress 6.0+
+* HTTPS enabled (for Zotero API)
 
 ---
 
