@@ -1,52 +1,44 @@
-# SPDX-License-Identifier: MPL-2.0
-name: "CodeQL Advanced"
+# SPDX-License-Identifier: AGPL-3.0-or-later
+name: CodeQL Security Analysis
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, master]
   pull_request:
-    branches: [ "main" ]
+    branches: [main, master]
   schedule:
-    - cron: '23 17 * * 0'
+    - cron: '0 6 * * 1'
 
 permissions: read-all
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     permissions:
-      security-events: write
-      packages: read
-      actions: read
       contents: read
-
+      security-events: write
     strategy:
       fail-fast: false
       matrix:
         include:
-        - language: actions
-          build-mode: none
-        - language: javascript-typescript
-          build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+          - language: rust
+            build-mode: none
+          - language: ruby
+            build-mode: none
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v3
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@662472033e021d55d94146f66f6058822b0b39fd # v3.28.1
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
 
-    - name: Run manual build steps
-      if: matrix.build-mode == 'manual'
-      shell: bash
-      run: |
-        echo 'Manual build not required for this project'
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v3
-      with:
-        category: "/language:${{matrix.language}}"
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@662472033e021d55d94146f66f6058822b0b39fd # v3.28.1
+        with:
+          category: "/language:${{ matrix.language }}"
