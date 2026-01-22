@@ -479,7 +479,7 @@ Key decisions documented in `META.scm`:
 * **ReScript over TypeScript** — Type-sound, cleaner JS output, RSR policy compliance
 * **Deno over Node.js/npm** — Secure defaults, no dependency hell
 * **PHP 8.1+ minimum** — Modern features, better static analysis
-* **AGPL-3.0 licensing** — Strong copyleft for network services
+* **PMPL-1.0 licensing** — Strong copyleft for network services
 
 == Contributing
 
@@ -502,7 +502,7 @@ See link:SECURITY.md[SECURITY.md] for:
 
 == License
 
-Licensed under **AGPL-3.0-or-later** with optional **Palimpsest-0.5** philosophical overlay.
+Licensed under **PMPL-1.0-or-later** with optional **Palimpsest-0.5** philosophical overlay.
 
 See link:LICENSE[LICENSE] for full terms.
 
@@ -517,7 +517,7 @@ To cite Zotpress in academic work:
   title = {Zotpress: Zotero to WordPress Integration},
   year = {2025},
   url = {https://github.com/hyperpolymath/zotpress},
-  license = {AGPL-3.0-or-later}
+  license = {PMPL-1.0-or-later}
 }
 ----
 
