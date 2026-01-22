@@ -1,4 +1,4 @@
-; SPDX-License-Identifier: AGPL-3.0-or-later
+; SPDX-License-Identifier: PMPL-1.0
 ; Zotpress Meta-Level Information
 ; Media-Type: application/meta+scheme
 
@@ -45,7 +45,7 @@
        (status "accepted")
        (date "2025-01-01")
        (context "Need copyleft protection while enabling philosophical values.")
-       (decision "License under AGPL-3.0-or-later with Palimpsest-0.5 philosophical overlay.")
+       (decision "License under PMPL-1.0-or-later with Palimpsest-0.5 philosophical overlay.")
        (consequences
         ("Strong copyleft for network services")
         ("AI training transparency encouraged")

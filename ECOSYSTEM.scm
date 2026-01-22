@@ -1,4 +1,4 @@
-; SPDX-License-Identifier: AGPL-3.0-or-later
+; SPDX-License-Identifier: PMPL-1.0
 ; Zotpress Ecosystem Definition
 ; Media-Type: application/vnd.ecosystem+scm
 
@@ -62,7 +62,7 @@
    (description "Projects requiring citation integration")))
 
  (ecosystem-values
-  (licensing "AGPL-3.0-or-later with Palimpsest overlay")
+  (licensing "PMPL-1.0-or-later with Palimpsest overlay")
   (governance "RSR framework")
   (language-policy "No TypeScript, No Go, No npm - ReScript and Deno only")
   (quality-standards "PHPStan Level 6, comprehensive CI/CD")))
