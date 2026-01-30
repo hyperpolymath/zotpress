@@ -1,4 +1,4 @@
-; SPDX-License-Identifier: PMPL-1.0
+; SPDX-License-Identifier: PMPL-1.0-or-later
 ; Zotpress Project State
 ; Media-Type: application/vnd.state+scm
 
